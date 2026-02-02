@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
 import { beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import { Keypair } from '@stellar/stellar-sdk';
 
 config(); // Load environment variables before anything else
 
@@ -14,7 +15,7 @@ beforeEach(() => {
   vi.spyOn(console, 'info').mockImplementation(() => {});
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
-config(); // Load environment variables before anything else
+});
 
 // Set test defaults if not provided
 if (!process.env.JWT_ACCESS_SECRET) {
@@ -29,6 +30,7 @@ if (!process.env.ENCRYPTION_KEY) {
 if (!process.env.DATABASE_URL_TEST && !process.env.DATABASE_URL) {
   process.env.DATABASE_URL = 'postgresql://postgres:password@localhost:5435/boxmeout_test';
 }
+
 // Set default env vars for testing if not present
 process.env.NODE_ENV = 'test';
 process.env.JWT_ACCESS_SECRET =
@@ -53,11 +55,6 @@ process.env.JWT_ACCESS_SECRET =
   process.env.JWT_ACCESS_SECRET || 'test-access-secret';
 process.env.JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET || 'test-refresh-secret';
-
-import { PrismaClient } from '@prisma/client';
-import { execSync } from 'child_process';
-import { beforeAll, afterAll, vi } from 'vitest';
-import { Keypair } from '@stellar/stellar-sdk';
 
 // Mock Keypair to avoid secret validation errors
 vi.mock('@stellar/stellar-sdk', async () => {

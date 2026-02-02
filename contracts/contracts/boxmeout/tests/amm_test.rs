@@ -13,6 +13,8 @@ const POOL_NO_RESERVE: &str = "pool_no_reserve";
 const POOL_K: &str = "pool_k";
 const POOL_EXISTS: &str = "pool_exists";
 const USER_SHARES_KEY: &str = "user_shares";
+const USER_SHARES_YES: &str = "user_shares_yes";
+const USER_SHARES_NO: &str = "user_shares_no";
 
 fn create_test_env() -> Env {
     Env::default()
@@ -97,7 +99,7 @@ fn create_mock_token(env: &Env, admin: &Address) -> Address {
 fn test_amm_initialize() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     let admin = Address::generate(&env);
     let factory = Address::generate(&env);
@@ -116,7 +118,7 @@ fn test_amm_initialize() {
 fn test_create_pool() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -141,7 +143,7 @@ fn test_create_pool() {
 fn test_create_pool_twice_fails() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -150,6 +152,7 @@ fn test_create_pool_twice_fails() {
     let max_liquidity_cap = 100_000_000_000u128;
     client.initialize(&admin, &factory, &usdc_token, &max_liquidity_cap);
 
+    let creator = Address::generate(&env);
     let market_id = BytesN::from_array(&env, &[1u8; 32]);
     let initial_liquidity = 10_000_000_000u128;
 
@@ -168,7 +171,7 @@ fn test_create_pool_twice_fails() {
 fn test_create_pool_zero_liquidity_fails() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -177,6 +180,8 @@ fn test_create_pool_zero_liquidity_fails() {
     let max_liquidity_cap = 100_000_000_000u128;
     client.initialize(&admin, &factory, &usdc_token, &max_liquidity_cap);
 
+    let buyer = Address::generate(&env);
+    let market_id = BytesN::from_array(&env, &[1u8; 32]);
     setup_mock_pool(&env, &amm_id, &market_id, 1000, 1000);
 
     let amount: u128 = 100;
@@ -259,7 +264,7 @@ fn test_buy_shares_no() {
 fn test_buy_shares_yes() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -309,8 +314,11 @@ fn test_buy_shares_price_impact() {
     let admin = Address::generate(&env);
     let factory = Address::generate(&env);
     let buyer = Address::generate(&env);
+    let creator = Address::generate(&env);
     let market_id = BytesN::from_array(&env, &[1u8; 32]);
-    client.create_pool(&market_id, &10_000_000_000u128); // 5B YES, 5B NO
+    let usdc_token = Address::generate(&env);
+    client.initialize(&admin, &factory, &usdc_token, &100_000_000_000u128);
+    client.create_pool(&creator, &market_id, &10_000_000_000u128); // 5B YES, 5B NO
 
     // Buy YES shares
     let buyer = Address::generate(&env);
@@ -333,10 +341,10 @@ fn test_buy_shares_price_impact() {
 }
 
 #[test]
-fn test_buy_shares_no() {
+fn test_buy_shares_no_slippage() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -401,7 +409,7 @@ fn test_buy_shares_reserves_and_k_updated() {
 fn test_buy_shares_slippage_protection() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -427,7 +435,7 @@ fn test_buy_shares_slippage_protection() {
 fn test_sell_shares() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -462,13 +470,14 @@ fn test_sell_shares() {
 fn test_get_pool_state() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
     let factory = Address::generate(&env);
     let buyer = Address::generate(&env);
     let market_id = BytesN::from_array(&env, &[1u8; 32]);
+    let initial_liquidity = 10_000_000_000u128;
 
     let usdc_token = setup_usdc_token(&env, &buyer, 10_000_000);
     client.initialize(&admin, &factory, &usdc_token, &100_000_000_000u128);
@@ -495,7 +504,7 @@ fn test_get_pool_state() {
 }
 
 #[test]
-fn test_sell_shares() {
+fn test_sell_shares_slippage() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
     let client = AMMClient::new(&env, &amm_id);
@@ -560,7 +569,7 @@ fn test_sell_shares() {
 
 #[test]
 #[should_panic(expected = "Slippage exceeded")]
-fn test_sell_shares_slippage() {
+fn test_sell_shares_slippage_protection() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
     let client = AMMClient::new(&env, &amm_id);
@@ -627,7 +636,7 @@ fn test_sell_more_shares_than_owned() {
 fn test_get_odds() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -653,7 +662,7 @@ fn test_get_odds() {
 }
 
 #[test]
-fn test_get_odds() {
+fn test_get_odds_balanced() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
     let client = AMMClient::new(&env, &amm_id);
@@ -1042,7 +1051,7 @@ fn test_remove_liquidity_zero_amount() {
 fn test_full_trading_cycle() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -1120,7 +1129,7 @@ fn test_full_trading_cycle() {
 fn test_large_trade_price_impact() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);
@@ -1153,7 +1162,7 @@ fn test_large_trade_price_impact() {
 fn test_cpmm_invariant() {
     let env = create_test_env();
     let amm_id = register_amm(&env);
-    let client = AMMContractClient::new(&env, &amm_id);
+    let client = AMMClient::new(&env, &amm_id);
 
     // Initialize AMM
     let admin = Address::generate(&env);

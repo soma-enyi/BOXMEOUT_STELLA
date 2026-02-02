@@ -316,12 +316,12 @@ impl PredictionMarket {
     /// - Emit PredictionRevealed(user, market_id, outcome, amount, timestamp)
     /// - Update market total_volume += amount
     pub fn reveal_prediction(
-        env: Env,
-        user: Address,
-        market_id: BytesN<32>,
-        outcome: u32,
-        amount: i128,
-        salt: BytesN<32>,
+        _env: Env,
+        _user: Address,
+        _market_id: BytesN<32>,
+        _outcome: u32,
+        _amount: i128,
+        _salt: BytesN<32>,
     ) {
         todo!("See reveal prediction TODO above")
     }
@@ -492,7 +492,7 @@ impl PredictionMarket {
     /// - Increment dispute counter
     /// - Emit MarketDisputed(user, reason, market_id, timestamp)
     /// - Notify admin of dispute
-    pub fn dispute_market(env: Env, user: Address, market_id: BytesN<32>, dispute_reason: Symbol) {
+    pub fn dispute_market(_env: Env, _user: Address, _market_id: BytesN<32>, _dispute_reason: Symbol) {
         todo!("See dispute market TODO above")
     }
 
@@ -647,7 +647,7 @@ impl PredictionMarket {
     /// - Transfer refund from treasury to user
     /// - Mark as refunded
     /// - Emit LosingBetRefunded(user, market_id, refund_amount, timestamp)
-    pub fn refund_losing_bet(env: Env, user: Address, market_id: BytesN<32>) -> i128 {
+    pub fn refund_losing_bet(_env: Env, _user: Address, _market_id: BytesN<32>) -> i128 {
         todo!("See refund losing bet TODO above")
     }
 
@@ -662,7 +662,7 @@ impl PredictionMarket {
     /// - Include odds: yes_odds, no_odds
     /// - Include resolution: winning_outcome (if resolved), timestamp
     /// - Include user-specific data if user provided: their prediction, potential winnings
-    pub fn get_market_state(env: Env, market_id: BytesN<32>) -> Symbol {
+    pub fn get_market_state(_env: Env, _market_id: BytesN<32>) -> Symbol {
         todo!("See get market state TODO above")
     }
 
@@ -674,7 +674,7 @@ impl PredictionMarket {
     /// - Include: commit timestamp, reveal timestamp, claim timestamp
     /// - Include potential payout if market is unresolved
     /// - Handle: user has no prediction (return error)
-    pub fn get_user_prediction(env: Env, user: Address, market_id: BytesN<32>) -> Symbol {
+    pub fn get_user_prediction(_env: Env, _user: Address, _market_id: BytesN<32>) -> Symbol {
         todo!("See get user prediction TODO above")
     }
 
@@ -686,7 +686,7 @@ impl PredictionMarket {
     /// - Include: user address, outcome, amount for each
     /// - Include participation count and total_volume
     /// - Exclude: user private data (privacy-preserving)
-    pub fn get_all_predictions(env: Env, market_id: BytesN<32>) -> Vec<Symbol> {
+    pub fn get_all_predictions(_env: Env, _market_id: BytesN<32>) -> Vec<Symbol> {
         todo!("See get all predictions TODO above")
     }
 
@@ -698,7 +698,7 @@ impl PredictionMarket {
     /// - Limit top 100
     /// - Return: user address, prediction, payout, accuracy
     /// - For display on frontend
-    pub fn get_market_leaderboard(env: Env, market_id: BytesN<32>) -> Vec<Symbol> {
+    pub fn get_market_leaderboard(_env: Env, _market_id: BytesN<32>) -> Vec<Symbol> {
         todo!("See get market leaderboard TODO above")
     }
 
@@ -709,7 +709,7 @@ impl PredictionMarket {
     /// - Calculate current odds for YES and NO
     /// - Return depth: how much can be bought at current price
     /// - Include slippage estimates for trades
-    pub fn get_market_liquidity(env: Env, market_id: BytesN<32>) -> i128 {
+    pub fn get_market_liquidity(_env: Env, _market_id: BytesN<32>) -> i128 {
         todo!("See get market liquidity TODO above")
     }
 
@@ -724,7 +724,7 @@ impl PredictionMarket {
     /// - Handle any transfer failures (log but continue)
     /// - Set market state to CANCELLED
     /// - Emit MarketCancelled(market_id, reason, creator, timestamp)
-    pub fn cancel_market(env: Env, creator: Address, market_id: BytesN<32>) {
+    pub fn cancel_market(_env: Env, _creator: Address, _market_id: BytesN<32>) {
         todo!("See cancel market TODO above")
     }
 

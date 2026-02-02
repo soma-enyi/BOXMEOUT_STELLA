@@ -392,7 +392,7 @@ fn update_pool_balance(env: &Env, key: &str, delta: i128) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soroban_sdk::testutils::{Address as _, Ledger};
+    use soroban_sdk::testutils::Address as _;
     use soroban_sdk::{token, Address, Env};
 
     fn create_token_contract<'a>(env: &Env, admin: &Address) -> token::StellarAssetClient<'a> {
@@ -405,8 +405,8 @@ mod tests {
     fn setup_treasury(
         env: &Env,
     ) -> (
-        TreasuryClient,
-        token::StellarAssetClient,
+        TreasuryClient<'_>,
+        token::StellarAssetClient<'_>,
         Address,
         Address,
         Address,
@@ -428,7 +428,7 @@ mod tests {
     #[test]
     fn test_initialize() {
         let env = Env::default();
-        let (treasury, usdc, admin, _, factory) = setup_treasury(&env);
+        let (treasury, _usdc, _admin, _, _factory) = setup_treasury(&env);
 
         assert_eq!(treasury.get_platform_fees(), 0);
         assert_eq!(treasury.get_leaderboard_fees(), 0);
@@ -439,7 +439,7 @@ mod tests {
     #[test]
     fn test_deposit_fees_splits_correctly() {
         let env = Env::default();
-        let (treasury, usdc, admin, _, _) = setup_treasury(&env);
+        let (treasury, usdc, _admin, _, _) = setup_treasury(&env);
         let source = Address::generate(&env);
 
         // Mint tokens to source
@@ -463,7 +463,7 @@ mod tests {
     #[test]
     fn test_set_fee_distribution() {
         let env = Env::default();
-        let (treasury, usdc, admin, _, _) = setup_treasury(&env);
+        let (treasury, usdc, _admin, _, _) = setup_treasury(&env);
         let source = Address::generate(&env);
 
         // Update ratios: 40% Platform, 40% Leaderboard, 20% Creator
@@ -563,7 +563,7 @@ mod tests {
     #[should_panic(expected = "Unauthorized: only admin can distribute rewards")]
     fn test_distribute_leaderboard_rewards_only_admin() {
         let env = Env::default();
-        let (treasury, usdc, admin, _, _) = setup_treasury(&env);
+        let (treasury, usdc, _admin, _, _) = setup_treasury(&env);
         let source = Address::generate(&env);
         let non_admin = Address::generate(&env);
         let user1 = Address::generate(&env);
