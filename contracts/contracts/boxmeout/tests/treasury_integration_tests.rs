@@ -1,10 +1,9 @@
 #![cfg(test)]
 
-use super::*;
 use crate::factory::{MarketFactory, MarketFactoryClient};
 use crate::treasury::{Treasury, TreasuryClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
-use soroban_sdk::{token, Address, BytesN, Env, Symbol};
+use soroban_sdk::{token, Address, Env, Symbol};
 
 fn create_token_contract<'a>(env: &Env, admin: &Address) -> token::StellarAssetClient<'a> {
     let token_address = env
