@@ -3,16 +3,20 @@ import { MarketRepository } from '../repositories/market.repository.js';
 import { PredictionRepository } from '../repositories/prediction.repository.js';
 import { MarketCategory, MarketStatus } from '@prisma/client';
 import { executeTransaction } from '../database/transaction.js';
-import { factoryService } from './blockchain/factory.js';
-import { ammService } from './blockchain/amm.js';
+import { FactoryService } from './blockchain/factory.js';
+import { AmmService } from './blockchain/amm.js';
 
 export class MarketService {
   private marketRepository: MarketRepository;
   private predictionRepository: PredictionRepository;
+  private factoryService: FactoryService;
+  private ammService: AmmService;
 
   constructor() {
     this.marketRepository = new MarketRepository();
     this.predictionRepository = new PredictionRepository();
+    this.factoryService = new FactoryService();
+    this.ammService = new AmmService();
   }
 
   async createPool(marketId: string, initialLiquidity: bigint) {
@@ -31,7 +35,7 @@ export class MarketService {
     }
 
     // Call blockchain AMM to create pool
-    const chain = await ammService.createPool({
+    const chain = await this.ammService.createPool({
       marketId: market.contractAddress,
       initialLiquidity,
     });
@@ -93,12 +97,12 @@ export class MarketService {
 
     try {
       // Call blockchain factory to create market on-chain
-      const blockchainResult = await factoryService.createMarket({
+      const blockchainResult = await this.factoryService.createMarket({
         title: data.title,
         description: data.description,
         category: data.category,
-        closingTime: data.closingAt,
-        resolutionTime: resolutionTime,
+        closingTime: Math.floor(data.closingAt.getTime() / 1000),
+        resolutionTime: Math.floor(resolutionTime.getTime() / 1000),
         creator: data.creatorPublicKey,
       });
 

@@ -124,7 +124,7 @@ export class FactoryService {
 
     const response = await this.rpcServer.simulateTransaction(transaction);
     
-    if (response.error) {
+    if (!rpc.Api.isSimulationSuccess(response)) {
       throw new Error(`Simulation failed: ${response.error}`);
     }
 
