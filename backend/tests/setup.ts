@@ -83,7 +83,6 @@ const prisma = new PrismaClient({
 });
 
 // Database setup (only for integration tests that actually need it)
-let prisma: PrismaClient | null = null;
 let isSetup = false;
 
 // Only setup database if we're running integration tests
@@ -102,14 +101,6 @@ beforeAll(async () => {
 
   if (hasDatabaseUrl && !process.env.SKIP_DB_SETUP) {
     console.log('🔧 Setting up test database for integration tests...');
-
-    prisma = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL_TEST || process.env.DATABASE_URL,
-        },
-      },
-    });
 
     try {
       execSync('npx prisma migrate deploy', {
